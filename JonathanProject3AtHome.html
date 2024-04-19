@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link href='https://fonts.googleapis.com/css?family=Londrina+Shadow' rel='stylesheet' type='text/css'>
+<style>
+body {
+  font-family: Verdana sans-serif;
+  margin: 0 auto;
+  max-width: 600px;
+  background: #ffc0cb;
+}
+input {
+  font-size: 22px;
+}
+div {
+  height: 600px;
+  background-size: cover;
+  position: relative;
+  margin: 40px 0 0 0;
+  border-radius: 12px;
+}
+h1 {
+  font-family: 'Times New Roman', Times;
+  text-align: center;
+  font-size: 50px;
+  color: #aaaaaa;
+  margin: 50px 0 0 0;
+}
+h2 {
+  text-align: center;
+  color: #bbbbbb;
+  margin: 0px 0 70px 0;
+}
+p {
+  color: rgba(255,192,203,1);
+  background: black;
+  background: linear-gradient(bottom, rgba(0,0,0,1), rgba(0,0,0,.4));
+  background: -webkit-linear-gradient(bottom, rgba(0,0,0,1), rgba(0,0,0,.4));
+  background: -moz-linear-gradient(bottom, rgba(0,0,0,1), rgba(0,0,0,.4));
+  padding: 5px;
+  line-height: 28px;
+  text-align: justify;
+  position: absolute;
+  bottom: 0;
+  margin: 0;
+  height: 30px;
+  transition: height .5s;
+  -webkit-transition: height .5s;
+  -moz-transition: height .5s;
+}
+
+small {
+  opacity: 0;
+}
+
+.show-description p {
+  height: 150px;
+}
+
+.show-description small {
+  opacity: 1;
+}
+
+.first{
+  background-image: url("https://www.abakingjourney.com/wp-content/uploads/2022/04/Mini-Fruit-Tarts-Feature.jpg");
+}
+.second{
+  background-image: url("https://falasteenifoodie.com/wp-content/uploads/2022/11/Delicious-creme-Filling-with-strawberry-jam-600x800.jpeg");
+}
+.dessert{
+  background-image: url("https://www.sweetandsavorybyshinee.com/wp-content/uploads/2022/07/Raspberry-Lemon-Meringue-Tartlets-6-500x500.jpg");
+}
+.price {
+  float: right;
+}
+@media (max-width: 500px) {
+  h1 {
+    font-size: 50px;
+    margin-top: 20px;
+    line-height: 40px;
+  }
+  h2 {
+    font-size: 20px;
+    margin: 20px 0 30px 0;
+  }
+  div {
+    margin: 20px 12px 0 12px;
+  }
+  p {
+    font-size: 20px;
+    line-height: 24px;
+  }
+  small {
+    font-size: 18px;
+  }
+}
+
+</style>
+
+</head>
+
+<body>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyA7MEZus7ZDzdET8VkaOIqwpSmVDSulc7E",
+    authDomain: "jonathanproject3athome-f4eb3.firebaseapp.com",
+    projectId: "jonathanproject3athome-f4eb3",
+    storageBucket: "jonathanproject3athome-f4eb3.appspot.com",
+    messagingSenderId: "299641058825",
+    appId: "1:299641058825:web:15ad5b0a56a2dd4e176ad8"
+  };
+
+  // Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const Name = document.querySelector("#Name") 
+const Email = document.querySelector("#Email")
+  document.querySelector('#submit').addEventListener('click', Submit)
+const quantities = document.querySelectorAll(".quantities")
+const itemsList = ["Fruit Tarts", "Strawberry Croissant", "Rasberry Lemon Meringue Tarlets"]
+const prices = document.querySelectorAll(".price")
+  
+  function Submit() {
+    const timestamp = buildTimestamp()
+    let total = 0
+        let cart = { }
+    for  (let i=0; i<quantities.length; i=i+1) {
+      if (quantities[i].value != "0" && quantities[i].value != "") {  
+        let price = prices[i].innerHTML.replace('$', '')
+        total = total + quantities[i].value * price
+        cart[itemsList[i]] = parseInt(quantities[i].value) 
+      }
+      quantities[i].value = ""
+    }
+
+    
+    set(ref(db, timestamp), {
+      Name: Name.value,
+        email: Email.value,
+            cart: cart,
+                totalPrice: total,
+                  paid: "not yet",
+    });
+
+    Name.value = ""
+    Email.value = ""
+  }
+  function buildTimestamp() {
+    const now = new Date();
+    let timestamp = now.getFullYear().toString() + "/";
+    //const month = now.toLocaleString('default', { month: 'long' });
+
+    let month = now.getMonth()+1   //add 1 because Javascript uses 0 for January
+    month = month.toString()
+    month = addLeadingZero(month)
+    timestamp += month + "/"; 
+
+    let date = now.getDate().toString()
+    date = addLeadingZero(date)
+    timestamp += date + "/";
+
+    let hours = now.getHours().toString()
+    hours = addLeadingZero(hours)
+    timestamp += hours + ":";
+
+    let minutes = now.getMinutes().toString()
+    minutes = addLeadingZero(minutes)
+    timestamp += minutes + ":";
+
+    let seconds = now.getSeconds().toString()
+    seconds = addLeadingZero(seconds)
+    timestamp += seconds;
+  
+    return timestamp
+  }
+  
+  function addLeadingZero(units) {
+    if (units.length < 2) {
+      units = "0" + units
+    }
+    return units
+  }
+</script>
+<h1>Jonathan's Bakery</h1>
+<h2>a New York City eatery</h2>
+<div class="first">
+  <input type="number" min="0" style="width: 50px" class="quantities">
+  <p>Fruit Tarts <span class="price">$7</span><br />
+  <small>crispy buttery shortbread crust with a vanilla hint. It also has a delicious creamy vanilla custard covered in fresh fruits.</small></p>
+</div>
+
+<div class="second">
+  <input type="number" min="0" style="width: 50px" class="quantities">
+  <p>Strawberry Croissant <span class="price">$6</span><br />
+  <small>Toasty and freshly made Croissant filled with a creamy vanilla custard with slices of fresh strawberries added onto the filling.</small></p>
+</div>
+  
+<div class="dessert">
+  <input type="number" min="0" style="width: 50px" class="quantities">
+  <p>Rasberry Lemon Meringue Tartlets <span class="price">$5</span><br />
+  <small>A delicious buttery puff pastry filled with lemon tart curd and meringue, with freshly added rasberries on the side or on top.</small></p>
+</div>
+<br><br>
+<input id="Name" placeholder="Your Name">
+<input id="Email" placeholder="Your email">
+<input id="submit" placeholder="Submit" type="submit">
+<br><br>
+<script>
+  $('div').on('click', function() {
+      $(this).toggleClass('show-description');
+  });
+</script>
+
+</body>
